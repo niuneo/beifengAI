@@ -34,7 +34,7 @@ class Model_Loader(object):
         self.algo = joblib.load('./model/algo.m')
 
     def fetch_predict_value(self, x):
-        return self.algo.predict(self.scaler.transform(x_test))
+        return self.algo.predict(self.scaler.transform(x))
 
 
 if __name__ == '__main__':
