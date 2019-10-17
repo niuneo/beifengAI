@@ -1,0 +1,69 @@
+KNN伪代码：
+  -1. 比较简单的写法
+    def knn(datas, x, k):
+	  # 从训练数据datas中获取和样本x最相似的k个样本，基于这些样本产生样本x的预测值
+	  # 1. 从datas中获取距离样本x最近的k个样本，使用欧几里得距离公式
+	  k_neighbors = fetch_k_neighbors(datas,x,k)
+	  # 2. 统计获取得到的k个邻居样本中，各个类别出现的次数
+	  label_of_count_tuple_list = calc_label_count(k_neighbors)
+	  # 3. 从集合中获取出现次数最多的那个类别作为最终的预测类别
+	  predict_label = fetch_max_count_of_label(label_of_count_tuple_list)
+	  return predict_label
+	  
+  -2. 特别全的一种写法
+	def fit(train, k):
+	  self.train = train
+	  self.k = k
+	  
+	def fetch_k_neighbors(datas, x, k):
+	  k_neighbors = []
+	  count = 0
+	  max_dist = -1
+	  max_index = -1
+	  for data in datas:
+	    # a. 计算data样本和样本x之间的距离
+		dist = calc_dist(data, x)
+		# b. 根据计算出来的距离选择k个距离最近的样本添加到集合k_neighbors中
+		# b.1 如果集合k_neighbors中的样本数目小于k个，那么当前样本data一定要添加到集合中
+		# b.2 如果集合k_neighbors中的样本数目大于等于k个，那么当前样本data是否添加到集合中要根据距离来考虑；如果dist距离比集合中的所有样本的距离都大，那么不需要添加；否则取代列表中的距离最大的那个样本
+		if count < k:
+			k_neighbors.append((data, dist))
+			if dist > max_dist:
+				max_dist = dist
+				max_index = count
+			count += 1
+		elif dist < max_dist:
+			k_neighbors[max_index] = (data, dist)
+			max_index = np.argmax(list(map(lambda t: t[1], k_neighbors)))
+			max_dist = k_neighbors[max_index][1]
+	  return k_neighbors
+  
+    def predict(test):
+	  # NOTE: 假定test中只有一个样本
+	  # 1. 从train集合中获取和test最相似的K个邻居样本数据
+	  neighbors = fetch_k_neighbors(self.train, test, self.k)
+	  
+	  # 2. 根据获取得到的结果得到最优可能的类别
+	  # a. 统计一下各个类别出现的数目
+	  result = {}
+	  for record in neighbors:
+	    # i. 获取当前样本的目标属性y值
+		target_y = record.y
+		# ii. 如果该值不在result列表中，那么进行添加，如果在，进行更新
+		if target_y not in result:
+		  count = 0
+		else:
+		  count = result.get(target_y)
+		count += 1
+		result[target_y] = count
+	  # b. 从字典数据中获取出现次数最多的那个类别
+	  max_count = -1
+	  result_type = None
+	  for k, v in result.items():
+	    if v > max_count:
+		  max_count = v
+		  result_type = k
+	  
+	  return result_type
+	  
+	  

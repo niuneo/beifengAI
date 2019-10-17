@@ -1,0 +1,43 @@
+KMeans伪代码
+  def fit(datas, k, max_iter, cluters=None):
+	# a. 定义临时变量
+	num_iter = 0
+	clusters = cluters or datas[:k]
+	
+	# b. 开始更新迭代
+	while num_iter < max_iter:
+	  cluster_index_2_datas = {}
+	  # i. 计算datas中的数据到底属于那个簇
+	  for data in datas:
+	    cluster_dists = []
+	    # -1. 计算data到所有簇中心点的距离
+		for index, cluster in enumerate(clusters):
+		  # -a. 计算样本data到簇cluster的距离
+		  dist = calc_dist(data, cluster)
+		  # -b. 将距离保存到临时变量中
+		  cluster_dists.append((index, dist))
+		# -2. 获取距离最近的簇
+		cluster_dists.sort(key=lambda t: t[1])
+		min_index, min_dist = cluster_dists[0]
+		# -3. 将当前样本data放入对应的簇中间
+		if min_index not in cluster_index_2_datas:
+		  cluster_index_2_datas[min_index] = []
+		cluster_index_2_datas[min_index].append(data)
+	  # ii. 计算新的簇中心点坐标
+	  for index in cluster_index_2_datas:
+	    clusters[index] = calc_mean(cluster_index_2_datas[index])
+	  # iii. 更新迭代次数
+	  num_iter += 1
+	return clusters
+  
+  def predict(clusters, x):
+    min_dist = calc_dist(cluster[0], x)
+	min_index = 0
+    # 1. 计算距离样本x最近的簇
+	for index, cluster in enumerate(clusters):
+	  dist = calc_dist(cluster, x)
+	  if dist < min_dist:
+	    min_dist = dist
+		min_index = index
+	return min_index
+	
